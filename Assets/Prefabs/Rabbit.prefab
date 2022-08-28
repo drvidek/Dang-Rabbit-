@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1045830172137780392}
   - component: {fileID: 1045830172137780393}
   m_Layer: 0
-  m_Name: Square
+  m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -92,6 +92,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1045830172939119803}
   - component: {fileID: 1045830172939119802}
+  - component: {fileID: 4623152415192298529}
   m_Layer: 0
   m_Name: Rabbit
   m_TagString: Untagged
@@ -108,7 +109,7 @@ Transform:
   m_GameObject: {fileID: 1045830172939119801}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -16, y: 15, z: 0}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1045830172137780392}
   m_Father: {fileID: 0}
@@ -126,7 +127,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7acd1db497777d54891c070a0570989a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _pathManager: {fileID: 0}
+  _pathFinder: {fileID: 0}
   waypoints: []
   _minDist: 0.05
   _spd: 0
@@ -134,3 +135,16 @@ MonoBehaviour:
   _start: {fileID: 0}
   _end: {fileID: 0}
   _aStar: 1
+  _useAsync: 0
+--- !u!114 &4623152415192298529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1045830172939119801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e58fdb85daa8094bb71a9f33a978785, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

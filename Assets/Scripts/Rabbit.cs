@@ -1,11 +1,10 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Ship : MonoBehaviour
+public class Rabbit : MonoBehaviour
 {
-    [SerializeField] private GameObject _pathManager;
-    public Transform[] waypoints;
+    [SerializeField] private AStar _pathFinder;
+    public Node[] waypoints;
     private int _waypointIndex = 1;
     [SerializeField] private float _minDist;
     [SerializeField] private float _spd;
@@ -14,20 +13,29 @@ public class Ship : MonoBehaviour
     [SerializeField] private Node _start;
     [SerializeField] private Node _end;
     [SerializeField] bool _aStar;
+    private bool repathPending;
+    public bool RepathPending { set { repathPending = true; } }
+
+    private bool _journeyFound = false;
+
+    [SerializeField] private bool _useAsync = false;
 
     // Start is called before the first frame update
     void Start()
     {
+        if (_pathFinder == null)
+            _pathFinder = GetComponent<AStar>();
         transform.position = _start.transform.position;
+        GameManager.rabbits.Add(this);
         StartNewJourney();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (_end != null)
+        if (_journeyFound && _end != null)
         {
-            if (Vector3.Distance(transform.position, waypoints[_waypointIndex].position) > _minDist)
+            if (Vector3.Distance(transform.position, waypoints[_waypointIndex].transform.position) > _minDist)
             {
                 Move();
             }
@@ -47,14 +55,26 @@ public class Ship : MonoBehaviour
 
     void NewDirection()
     {
-        _dir = (waypoints[_waypointIndex].position - transform.position).normalized;
+        _dir = (waypoints[_waypointIndex].transform.position - transform.position).normalized;
         //transform.forward = _dir;
     }
 
+    private void Repath()
+    {
+        _start = waypoints[_waypointIndex];
+        StartNewJourney();
+        repathPending = false;
+    }
+
+
     void UpdateWaypointIndex()
     {
-        transform.position = waypoints[_waypointIndex].position;
-
+        transform.position = waypoints[_waypointIndex].transform.position;
+        if (repathPending)
+        {
+            Repath();
+            return;
+        }
         _waypointIndex++;
         if (_waypointIndex >= waypoints.Length)
         {
@@ -70,42 +90,29 @@ public class Ship : MonoBehaviour
             NewDirection();
     }
 
-    public void StartNewJourney()
+    public async void StartNewJourney()
     {
+        _journeyFound = false;
         if (_start != null && _end != null)
         {
-            List<Node> nodes;
-            if (_aStar)
-                nodes = _pathManager.GetComponent<AStar>().FindShortestPath(_start, _end);
+            List<Node> nodes = new List<Node>();
+            if (_useAsync)
+            {
+                nodes = await _pathFinder.FindShortestPath(_start, _end);
+            }
             else
-                nodes = _pathManager.GetComponent<Dijkstra>().FindShortestPath(_start, _end);
-            Transform[] tempArray = new Transform[nodes.Count];
+            {
+                nodes = GameObject.Find("GameManager").GetComponent<AStarGlobal>().FindShortestPath(_start, _end);
+            }
+            waypoints = new Node[nodes.Count];
             for (int i = 0; i < nodes.Count; i++)
             {
-                tempArray[i] = nodes[i].transform;
+                waypoints[i] = nodes[i];
             }
-            waypoints = tempArray;
+            _waypointIndex = 0;
             _spd = _maxSpd;
+            _journeyFound = true;
             NewDirection();
         }
     }
-
-    //public void GetNodeOnClick()
-    //{
-    //    if (Input.GetMouseButtonDown(0))
-    //    {
-    //        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-    //        RaycastHit hit;
-    //        if (Physics.Raycast(ray, out hit))
-    //        {
-    //            if (hit.collider.TryGetComponent<Node>(out Node n))
-    //            {
-    //                _end = n;
-    //                StartNewJourney();
-    //            }
-    //        }
-
-    //    }
-    //}
-
 }

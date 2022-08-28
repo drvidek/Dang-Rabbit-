@@ -1,19 +1,24 @@
-using System.Threading.Tasks;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AStar : MonoBehaviour
+public class AStarGlobal : MonoBehaviour
 {
     private GameObject[] _nodes;
+
+    public Node start;
+    public Node end;
 
     private void Start()
     {
         _nodes = GameObject.FindGameObjectsWithTag("Node");
+
     }
 
-    public async Task<List<Node>> FindShortestPath(Node start, Node end)
+    public List<Node> FindShortestPath(Node start, Node end)
     {
-        if (await AStarAlgorithm(start, end))
+
+        if (AStarAlgorithm(start, end))
         {
             List<Node> result = new List<Node>();
 
@@ -31,7 +36,7 @@ public class AStar : MonoBehaviour
         return null;
     }
 
-    private async Task<bool> AStarAlgorithm(Node start, Node end)
+    private bool AStarAlgorithm(Node start, Node end)
     {
         List<Node> unexplored = new List<Node>();
 
@@ -54,9 +59,6 @@ public class AStar : MonoBehaviour
         }
 
         start.PathWeight = 0;
-
-        int i = 0;
-
         while (unexplored.Count > 0)
         {
             //order based on path
@@ -86,16 +88,8 @@ public class AStar : MonoBehaviour
                     neighbour.PreviousNode = current;
                 }
             }
-            i++;
-            if (i > 10)
-            {
-                i = 0;
-                await Task.Yield();
-            }
         }
 
         return true;
     }
-
-    
 }

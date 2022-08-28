@@ -28,7 +28,7 @@ public class Node : MonoBehaviour
         set { _pathWeight = value; }
     }
 
-    private Node _previousNode = null;
+    [SerializeField] private Node _previousNode = null;
     public Node PreviousNode
     {
         get { return _previousNode; }
@@ -61,6 +61,7 @@ public class Node : MonoBehaviour
 
     public void ResetNode()
     {
+        Debug.Log("Reset Triggered:" + gameObject.GetInstanceID());
         _pathWeight = int.MaxValue;
         _previousNode = null;
         _directDistanceToEnd = 0;
