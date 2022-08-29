@@ -47,17 +47,30 @@ public class Builder : MonoBehaviour
         return Physics.Raycast(ray, out hitObj);
     }
 
+    bool Buildable(out Node node)
+    {
+        node = null;
+        if (CheckClickedPosition(out RaycastHit hit))
+        {
+            if (hit.collider.TryGetComponent<Node>(out Node n))
+            {
+                node = n;
+                if (!n.Disabled && n.Buildable)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     bool CheckLeftClick()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (CheckClickedPosition(out RaycastHit hit))
+            if (Buildable(out Node n))
             {
-                if (hit.collider.TryGetComponent<Node>(out Node n))
-                {
-                    PlaceObject(_stump, n.transform.position);
-                    n.SetDisabled(true);
-                }
+                PlaceObject(_stump, n.transform.position);
+                n.SetDisabled(true);
+                GameManager.RepathRabbits();
             }
             return true;
         }
@@ -68,17 +81,11 @@ public class Builder : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1))
         {
-            if (CheckClickedPosition(out RaycastHit hit))
+            if (Buildable(out Node n))
             {
-                if (hit.collider.TryGetComponent<Node>(out Node n))
-                {
-                    if (!n.Disabled)
-                    {
-                        _currentFence = PlaceObject(_fence, n.transform.position).GetComponent<Fence>();
-                        _currentFence.fencePiece.leftPost = n;
-                        _currentFence.fencePiece.rightPost = n;
-                    }
-                }
+                _currentFence = PlaceObject(_fence, n.transform.position).GetComponent<Fence>();
+                _currentFence.fencePiece.leftPost = n;
+                _currentFence.fencePiece.rightPost = n;
             }
             return true;
         }
@@ -89,12 +96,9 @@ public class Builder : MonoBehaviour
     {
         if (Input.GetMouseButton(1))
         {
-            if (CheckClickedPosition(out RaycastHit hit))
+            if (Buildable(out Node n))
             {
-                if (hit.collider.TryGetComponent<Node>(out Node n))
-                {
-                    _currentFence.fencePiece.rightPost = n;
-                }
+                _currentFence.fencePiece.rightPost = n;
             }
             return true;
         }

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1635959320439393816}
   - component: {fileID: 6798154980770400407}
   - component: {fileID: 7248228031863890295}
+  - component: {fileID: 5316735704340104595}
   m_Layer: 0
   m_Name: Start
   m_TagString: Node
@@ -95,4 +96,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49458cbe89106f541a2ae42e8beffe71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _previousNode: {fileID: 0}
   _neighbourNodes: []
+  _disabled: 0
+--- !u!114 &5316735704340104595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2930979593234285702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41e12bec50b7f7941ba22f5ca9f44340, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _rabbitPrefab: {fileID: 1045830172939119801, guid: fb8a1ab5139d2e441a86d4c902a0d8fb, type: 3}
+  _spawnTimerMax: 2
+  _startNode: {fileID: 0}
+  _endNode: {fileID: 0}

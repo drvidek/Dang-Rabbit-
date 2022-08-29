@@ -9,7 +9,6 @@ public class Node : MonoBehaviour
     {
         get => _directDistanceToEnd;
     }
-
     public void SetDirectDistanceToEnd(Vector3 endPos)
     {
         _directDistanceToEnd = Vector3.Distance(endPos, transform.position);
@@ -47,6 +46,8 @@ public class Node : MonoBehaviour
 
     [SerializeField] private bool _disabled;
     public bool Disabled { get => _disabled; }
+    [SerializeField] private bool _buildable;
+    public bool Buildable { get => _buildable; }
 
     void Start()
     {

@@ -6,13 +6,9 @@ public class AStarGlobal : MonoBehaviour
 {
     private GameObject[] _nodes;
 
-    public Node start;
-    public Node end;
-
     private void Start()
     {
         _nodes = GameObject.FindGameObjectsWithTag("Node");
-
     }
 
     public List<Node> FindShortestPath(Node start, Node end)
