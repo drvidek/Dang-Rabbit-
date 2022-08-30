@@ -99,6 +99,7 @@ MonoBehaviour:
   _previousNode: {fileID: 0}
   _neighbourNodes: []
   _disabled: 0
+  _buildable: 0
 --- !u!114 &5316735704340104595
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -112,6 +113,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _rabbitPrefab: {fileID: 1045830172939119801, guid: fb8a1ab5139d2e441a86d4c902a0d8fb, type: 3}
-  _spawnTimerMax: 2
+  _spawnTimerMax: 2.4
   _startNode: {fileID: 0}
   _endNode: {fileID: 0}
