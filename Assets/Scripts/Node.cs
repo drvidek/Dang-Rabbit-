@@ -62,7 +62,6 @@ public class Node : MonoBehaviour
 
     public void ResetNode()
     {
-        Debug.Log("Reset Triggered:" + gameObject.GetInstanceID());
         _pathWeight = int.MaxValue;
         _previousNode = null;
         _directDistanceToEnd = 0;

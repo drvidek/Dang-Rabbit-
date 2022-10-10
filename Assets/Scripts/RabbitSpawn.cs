@@ -9,7 +9,7 @@ public class RabbitSpawn : MonoBehaviour
     [SerializeField] private Node _startNode;
     [SerializeField] private Node _endNode;
     private float _spawnTimer;
-    
+
     void Start()
     {
         _startNode = GetComponent<Node>();

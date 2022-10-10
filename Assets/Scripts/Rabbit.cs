@@ -80,7 +80,11 @@ public class Rabbit : MonoBehaviour
             StartNewJourney();
         }
         repathPending = false;
+    }
 
+    public void TerminatePath()
+    {
+        _end = null;
     }
 
     bool PathImpacted()
