@@ -9,6 +9,8 @@ public class Net : MonoBehaviour
     [SerializeField] private float _minDist = 0.1f;
     private Vector3 _dir;
     protected Rabbit _target;
+    private float _maxDist = 1.75f;
+    private LineRenderer _line;
 
     private void Start()
     {
@@ -17,13 +19,17 @@ public class Net : MonoBehaviour
 
     private void Initialise()
     {
+        _line = GetComponentInChildren<LineRenderer>();
         _homePos = transform.position;
+        _line.SetPosition(0, _homePos);
+        _line.SetPosition(1, _homePos);
     }
 
     public void SetTarget(Rabbit rabbit, Vector3 pos)
     {
         _target = rabbit;
         _dir = MathExt.Direction(transform.position, pos);
+        _dir.z = 0;
     }
 
     void Update()
@@ -32,7 +38,13 @@ public class Net : MonoBehaviour
         if (Vector3.Distance(transform.position, _homePos) < _minDist && _target == null)
         {
             _dir = Vector3.zero;
+            transform.position = _homePos;
         }
+        if (Vector3.Distance(transform.position, _homePos) > _maxDist)
+        {
+            SetTarget(null, _homePos);
+        }
+        _line.SetPosition(1, transform.position);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

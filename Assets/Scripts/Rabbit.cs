@@ -11,8 +11,12 @@ public class Rabbit : MonoBehaviour
     private Vector3 _dir;
     [SerializeField] private Node _start;
     [SerializeField] private Node _end;
+    public Node End { get => _end; }
     private bool repathPending;
     public bool RepathPending { set { repathPending = true; } }
+
+    private bool _moving;
+    public bool Moving { get => _moving; }
 
     private float _travelTime;
     [SerializeField] private float _travelTimeMax = 1.5f;
@@ -52,8 +56,10 @@ public class Rabbit : MonoBehaviour
 
     void Move()
     {
+        _moving = true;
+
         if (Vector3.Distance(transform.position, waypoints[_waypointIndex].transform.position) > _minDist)
-            transform.position += _dir * _travelDist * Time.deltaTime * 1f/0.75f;
+            transform.position += _dir * _travelDist * Time.deltaTime * 1f / 0.75f;
         else
             transform.position = waypoints[_waypointIndex].transform.position;
         _travelTime -= Time.deltaTime;
@@ -99,6 +105,8 @@ public class Rabbit : MonoBehaviour
 
     void UpdateWaypointIndex()
     {
+        _moving = false;
+
         if (repathPending)
         {
             Repath();

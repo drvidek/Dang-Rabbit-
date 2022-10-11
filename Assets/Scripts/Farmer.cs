@@ -32,7 +32,7 @@ public class Farmer : MonoBehaviour
                 foreach (Rabbit rabbit in _targetList)
                 {
                     float newDist = Vector3.Distance(rabbit.transform.position, _end.transform.position);
-                    if (nearest == null || dist > newDist)
+                    if (nearest == null || (dist > newDist && !rabbit.Moving && rabbit.End != null))
                     {
                         nearest = rabbit;
                         dist = newDist;
@@ -65,7 +65,7 @@ public class Farmer : MonoBehaviour
         if (collision.gameObject.TryGetComponent<Rabbit>(out Rabbit rabbit))
         {
             if (_targetList.Contains(rabbit))
-            _targetList.Remove(rabbit);
+                _targetList.Remove(rabbit);
         }
     }
 }
