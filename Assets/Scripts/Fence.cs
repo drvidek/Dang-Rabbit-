@@ -95,7 +95,7 @@ public class Fence : MonoBehaviour
             if (hit.TryGetComponent<Node>(out Node n))
             n.SetDisabled(true);
         }
-        GameManager.RepathRabbits();
+        RabbitSpawn.RepathRabbits();
     }
 
 }

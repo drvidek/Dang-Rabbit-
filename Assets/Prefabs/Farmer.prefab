@@ -341,7 +341,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _spd: 6
   _minDist: 0.1
-  _farmer: {fileID: 2993571419738059085}
 --- !u!1 &2993571419738059086
 GameObject:
   m_ObjectHideFlags: 0
@@ -415,6 +414,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6047db5abef56464691511ef3b32e40a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _pathFinder: {fileID: 0}
+  waypoints: []
+  _travelDist: 0
+  _minDist: 0.05
+  _start: {fileID: 0}
+  _end: {fileID: 0}
+  _relocating: 0
+  _travelTimeMax: 0.2
+  state: 0
   _cooldown: 0
   _cooldownMax: 5
   _targetList: []

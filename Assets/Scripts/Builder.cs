@@ -6,34 +6,37 @@ public class Builder : MonoBehaviour
 {
     [SerializeField] private GameObject _stump;
     [SerializeField] private GameObject _fence;
-    private Fence _currentFence;
-    private bool _rightClickHeld;
+    [SerializeField] private Fence _currentFence;
+    [SerializeField] private bool _leftClickHeld;
+    [SerializeField] private GameObject[] _builderOptions;
+    private int _builderIndex = -1;
 
     // Update is called once per frame
     void Update()
     {
-        if (!_rightClickHeld)
+        if (_builderIndex > -1)
         {
-            if (!CheckLeftClick())
-                _rightClickHeld = CheckRightClick();
-        }
-        if (_currentFence != null)
-        {
-            if (!PlacingFence())
+            if (!_leftClickHeld)
+                _leftClickHeld = CheckLeftClick();
+            if (_currentFence != null)
             {
-                if (_currentFence.ValidFence)
+                if (!PlacingFence())
                 {
-                    _currentFence.building = false;
-                    _currentFence = null;
-                }
-                else
-                {
-                    Destroy(_currentFence.gameObject);
-                    _currentFence = null;
+                    if (_currentFence.ValidFence)
+                    {
+                        _currentFence.building = false;
+                        _currentFence = null;
+                    }
+                    else
+                    {
+                        Destroy(_currentFence.gameObject);
+                        _currentFence = null;
+                    }
                 }
             }
+            if (_leftClickHeld && !Input.GetMouseButton(0))
+                _leftClickHeld = false;
         }
-
     }
 
     GameObject PlaceObject(GameObject prefab, Vector3 pos)
@@ -68,24 +71,17 @@ public class Builder : MonoBehaviour
         {
             if (Buildable(out Node n))
             {
-                PlaceObject(_stump, n.transform.position);
-                n.SetDisabled(true);
-                GameManager.RepathRabbits();
-            }
-            return true;
-        }
-        else return false;
-    }
-
-    bool CheckRightClick()
-    {
-        if (Input.GetMouseButtonDown(1))
-        {
-            if (Buildable(out Node n))
-            {
-                _currentFence = PlaceObject(_fence, n.transform.position).GetComponent<Fence>();
-                _currentFence.fencePiece.leftPost = n;
-                _currentFence.fencePiece.rightPost = n;
+                if (_builderIndex == 0)
+                {
+                    _currentFence = PlaceObject(_fence, n.transform.position).GetComponent<Fence>();
+                    _currentFence.fencePiece.leftPost = n;
+                    _currentFence.fencePiece.rightPost = n;
+                }
+                else
+                {
+                    RepathFarmer(_builderIndex,n);
+                    _leftClickHeld = false;
+                }
             }
             return true;
         }
@@ -94,7 +90,7 @@ public class Builder : MonoBehaviour
 
     bool PlacingFence()
     {
-        if (Input.GetMouseButton(1))
+        if (Input.GetMouseButton(0))
         {
             if (Buildable(out Node n))
             {
@@ -104,8 +100,24 @@ public class Builder : MonoBehaviour
         }
         else
         {
-            _rightClickHeld = false;
+            _leftClickHeld = false;
             return false;
         }
+    }
+
+    void RepathFarmer(int farmerIndex, Node n)
+    {
+        Farmer farmer = _builderOptions[farmerIndex].GetComponent<Farmer>();
+        farmer.SetDestination(n);
+        if (farmer.state == FarmerState.move)
+            farmer.RepathPending = true;
+        else
+            farmer.StartNewJourney();
+        farmer.state = FarmerState.move;
+    }
+
+    public void SetBuilderMode(int i)
+    {
+        _builderIndex = i;
     }
 }

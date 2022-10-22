@@ -1,56 +1,115 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+    public enum FarmerState { move, attack }
 
-public class Farmer : MonoBehaviour
+public class Farmer : AStarAgent
 {
+    public FarmerState state;
     [SerializeField] private float _cooldown, _cooldownMax;
     [SerializeField] private List<Rabbit> _targetList = new List<Rabbit>();
     [SerializeField] private Net _net;
-    private Node _end;
+    private Node _rabbitEnd;
 
     private void Start()
     {
+        state = FarmerState.attack;
         Initialise();
     }
 
     public void Initialise()
     {
-        _cooldown = _cooldownMax;
-        _end = GameObject.Find("End").GetComponent<Node>();
+        _rabbitEnd = GameObject.Find("End").GetComponent<Node>();
+        NextState();
+    }
+
+    void NextState()
+    {
+        switch (state)
+        {
+            case FarmerState.move:
+                StartCoroutine("MoveState");
+                break;
+            case FarmerState.attack:
+                StartCoroutine("AttackState");
+                break;
+            default:
+                break;
+        }
     }
 
     // Update is called once per frame
-    void Update()
+    IEnumerator AttackState()
     {
-        if (_cooldown == 0)
+        _cooldown = _cooldownMax;
+        while (state == FarmerState.attack)
         {
-            if (_targetList.Count > 0)
+            if (_cooldown == 0)
             {
-                Rabbit nearest = null;
-                float dist = float.PositiveInfinity;
-                foreach (Rabbit rabbit in _targetList)
+                if (_targetList.Count > 0)
                 {
-                    float newDist = Vector3.Distance(rabbit.transform.position, _end.transform.position);
-                    if (nearest == null || (dist > newDist && !rabbit.Moving && rabbit.End != null))
+                    Rabbit nearest = null;
+                    float dist = float.PositiveInfinity;
+                    foreach (Rabbit rabbit in _targetList)
                     {
-                        nearest = rabbit;
-                        dist = newDist;
+                        float newDist = Vector3.Distance(rabbit.transform.position, _rabbitEnd.transform.position);
+                        if (nearest == null || (dist > newDist && !rabbit.Moving && rabbit.End != null))
+                        {
+                            nearest = rabbit;
+                            dist = newDist;
+                        }
+                    }
+
+                    if (nearest != null)
+                    {
+                        _targetList.Remove(nearest);
+                        nearest.TerminatePath();
+                        _net.SetTarget(nearest, nearest.transform.position);
+                        //Destroy(nearest.gameObject);
+                        _cooldown = _cooldownMax;
                     }
                 }
+            }
+            _cooldown = Mathf.MoveTowards(_cooldown, 0, Time.deltaTime);
+            yield return null;
+        }
+        NextState();
+    }
 
-                if (nearest != null)
+    IEnumerator MoveState()
+    {
+        while (state == FarmerState.move)
+        {
+            if (_end != null)
+            {
+                if (_travelTime > 0)
                 {
-                    _targetList.Remove(nearest);
-                    nearest.TerminatePath();
-                    _net.SetTarget(nearest, nearest.transform.position);
-                    //Destroy(nearest.gameObject);
-                    _cooldown = _cooldownMax;
+                    Move();
+                }
+                else
+                {
+                    UpdateWaypointIndex();
                 }
             }
+            else
+                state = FarmerState.attack;
+            yield return null;
         }
-        _cooldown = Mathf.MoveTowards(_cooldown, 0, Time.deltaTime);
+        NextState();
     }
+
+    public void SetDestination(Node end)
+    {
+        _end = end;
+    }
+
+    override protected void Repath()
+    {
+        _start = waypoints[_waypointIndex];
+        base.Repath();
+        StartNewJourney();
+    }
+
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

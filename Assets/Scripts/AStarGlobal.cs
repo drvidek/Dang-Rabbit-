@@ -4,17 +4,16 @@ using UnityEngine;
 
 public class AStarGlobal : MonoBehaviour
 {
-    private GameObject[] _nodes;
+    [SerializeField] private GameObject[] _nodes;
 
-    private void Start()
+    private void Awake()
     {
         _nodes = GameObject.FindGameObjectsWithTag("Node");
     }
 
-    public List<Node> FindShortestPath(Node start, Node end)
+    public List<Node> FindShortestPath(Node start, Node end, bool checkDisabled = true)
     {
-
-        if (AStarAlgorithm(start, end))
+        if (AStarAlgorithm(start, end, checkDisabled))
         {
             List<Node> result = new List<Node>();
 
@@ -32,7 +31,7 @@ public class AStarGlobal : MonoBehaviour
         return null;
     }
 
-    private bool AStarAlgorithm(Node start, Node end)
+    private bool AStarAlgorithm(Node start, Node end, bool checkDisabled = true)
     {
         List<Node> unexplored = new List<Node>();
 
@@ -40,7 +39,7 @@ public class AStarGlobal : MonoBehaviour
         {
             if (obj.TryGetComponent<Node>(out Node n))
             {
-                if (!n.Disabled)
+                if (!checkDisabled || (checkDisabled && !n.Disabled))
                 {
                     n.ResetNode();
                     unexplored.Add(n);

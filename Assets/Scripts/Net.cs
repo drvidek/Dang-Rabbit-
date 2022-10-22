@@ -54,7 +54,7 @@ public class Net : MonoBehaviour
             if (rabbit == _target)
             {
                 SetTarget(null, _homePos);
-                Destroy(rabbit.gameObject);
+                rabbit.EndOfLife();
             }
         }
     }

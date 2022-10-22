@@ -67,10 +67,12 @@ public class Node : MonoBehaviour
         _directDistanceToEnd = 0;
     }
 
-    public void AddNeighbourNode(Node newNode)
+    public void AddNeighbourNode(Node newNode, bool validate = false)
     {
         if (!_neighbourNodes.Contains(newNode) && newNode != this)
         _neighbourNodes.Add(newNode);
+        if (validate)
+            ValidateNeighbours();
     }
 
     private void ValidateNeighbours()
@@ -81,6 +83,11 @@ public class Node : MonoBehaviour
             if (!neighbour._neighbourNodes.Contains(this))
                 neighbour.AddNeighbourNode(this);
         }
+    }
+
+    public void ClearNeighbours()
+    {
+        _neighbourNodes.Clear();
     }
 
     private void OnDrawGizmos()
