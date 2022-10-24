@@ -9,17 +9,20 @@ public class Net : MonoBehaviour
     [SerializeField] private float _minDist = 0.1f;
     private Vector3 _dir;
     protected Rabbit _target;
-    private float _maxDist = 1.75f;
+    [SerializeField] private float _maxDist = 2f;
     private LineRenderer _line;
+    private SpriteRenderer _sprite;
+    public bool NetFree { get => _target == null && transform.position == _homePos; }
 
     private void Start()
     {
         Initialise();
     }
 
-    private void Initialise()
+    public void Initialise()
     {
-        _line = GetComponentInChildren<LineRenderer>();
+        _line ??= GetComponentInChildren<LineRenderer>();
+        _sprite ??= GetComponentInChildren<SpriteRenderer>();
         _homePos = transform.position;
         _line.SetPosition(0, _homePos);
         _line.SetPosition(1, _homePos);
@@ -45,6 +48,8 @@ public class Net : MonoBehaviour
             SetTarget(null, _homePos);
         }
         _line.SetPosition(1, transform.position);
+
+        _sprite.enabled = (transform.position != _homePos);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -54,8 +59,10 @@ public class Net : MonoBehaviour
             if (rabbit == _target)
             {
                 SetTarget(null, _homePos);
+                GameManager.Singleton.ChangeScore(5);
                 rabbit.EndOfLife();
             }
         }
     }
+
 }

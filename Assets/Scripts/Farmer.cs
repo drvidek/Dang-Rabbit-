@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
     public enum FarmerState { move, attack }
 
-public class Farmer : AStarAgent
+public class Farmer : MonoBehaviour
 {
     public FarmerState state;
+    [SerializeField] private float _moveSpd,_minDist = 0.02f;
     [SerializeField] private float _cooldown, _cooldownMax;
     [SerializeField] private List<Rabbit> _targetList = new List<Rabbit>();
     [SerializeField] private Net _net;
     private Node _rabbitEnd;
+    private Transform _targetDest;
+    [SerializeField] private Node _currentNode;
 
     private void Start()
     {
@@ -20,6 +23,7 @@ public class Farmer : AStarAgent
     public void Initialise()
     {
         _rabbitEnd = GameObject.Find("End").GetComponent<Node>();
+        _currentNode.SetDisabled(false);
         NextState();
     }
 
@@ -44,6 +48,12 @@ public class Farmer : AStarAgent
         _cooldown = _cooldownMax;
         while (state == FarmerState.attack)
         {
+            if (_targetDest != null && _net.NetFree)
+            {
+                state = FarmerState.move;
+                break;
+            }
+
             if (_cooldown == 0)
             {
                 if (_targetList.Count > 0)
@@ -71,6 +81,7 @@ public class Farmer : AStarAgent
                 }
             }
             _cooldown = Mathf.MoveTowards(_cooldown, 0, Time.deltaTime);
+
             yield return null;
         }
         NextState();
@@ -78,38 +89,43 @@ public class Farmer : AStarAgent
 
     IEnumerator MoveState()
     {
+        _net.gameObject.SetActive(false);
         while (state == FarmerState.move)
         {
-            if (_end != null)
+            if (_targetDest != null)
             {
-                if (_travelTime > 0)
-                {
-                    Move();
-                }
-                else
-                {
-                    UpdateWaypointIndex();
-                }
+                Move();
+                _net.transform.localPosition = Vector3.zero;
             }
             else
                 state = FarmerState.attack;
             yield return null;
         }
+        RabbitSpawn.RepathRabbits();
+        _net.gameObject.SetActive(true);
+        _net.Initialise();
         NextState();
+    }
+
+
+    private void Move()
+    {
+        if (Vector3.Distance(transform.position, _targetDest.position) > _minDist)
+        transform.position += MathExt.Direction(transform.position, _targetDest.position) * _moveSpd * Time.deltaTime;
+        else
+        {
+            transform.position = _targetDest.position;
+            _targetDest = null;
+        }
     }
 
     public void SetDestination(Node end)
     {
-        _end = end;
+        _currentNode.SetDisabled(false);
+        end.SetDisabled(true);
+        _targetDest = end.transform;
+        _currentNode = end;
     }
-
-    override protected void Repath()
-    {
-        _start = waypoints[_waypointIndex];
-        base.Repath();
-        StartNewJourney();
-    }
-
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

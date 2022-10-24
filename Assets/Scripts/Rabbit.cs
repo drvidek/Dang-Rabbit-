@@ -1,8 +1,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Rabbit : AStarAgent
+public class Rabbit : MonoBehaviour
 {
+    protected RabbitSpawn _rabbitSpawn;
+    [SerializeField] protected AStarGlobal _pathFinder;
+    public Node[] waypoints;
+    protected int _waypointIndex = 0;
+    [SerializeField] protected float _travelDist;
+    [SerializeField] protected float _minDist;
+    protected Vector3 _dir;
+    [SerializeField] protected Node _start;
+    [SerializeField] protected Node _end;
+    protected bool repathPending;
+    public bool RepathPending { set { repathPending = true; } }
+
+    [SerializeField] protected bool _relocating;
+
+    protected bool _moving;
+    public bool Moving { get => _moving; }
+
+    protected float _travelTime;
+    [SerializeField] protected float _travelTimeMax = 1.5f;
+
     public Node End { get => _end; }
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRend;
@@ -38,9 +58,23 @@ public class Rabbit : AStarAgent
         }
     }
 
-    override protected void NewDirection()
+    private void Move()
     {
-        base.NewDirection();
+        _moving = true;
+
+        if (Vector3.Distance(transform.position, waypoints[_waypointIndex].transform.position) > _minDist)
+            transform.position += _dir * _travelDist * Time.deltaTime * 1f / 0.75f;
+        else
+            transform.position = waypoints[_waypointIndex].transform.position;
+        _travelTime -= Time.deltaTime;
+    }
+
+    private void NewDirection()
+    {
+        _dir = (waypoints[_waypointIndex].transform.position - transform.position).normalized;
+
+        _travelDist = Vector3.Distance(transform.position, waypoints[_waypointIndex].transform.position);
+        _travelTime = _travelTimeMax * (_relocating ? Vector3.Distance(transform.position, waypoints[_waypointIndex].transform.position) : 1);
         spriteRend.flipX = (_dir.x < 0);
         animator.SetTrigger("Jump");
     }
@@ -61,19 +95,37 @@ public class Rabbit : AStarAgent
         return false;
     }
 
-    new void UpdateWaypointIndex()
+    void UpdateWaypointIndex()
     {
-        
+
         if (_relocating)
         {
             spriteRend.enabled = true;
             _relocating = false;
         }
 
-        base.UpdateWaypointIndex();
+        _moving = false;
+
+        if (repathPending)
+        {
+            Repath();
+            return;
+        }
+
+        _waypointIndex++;
+        if (_waypointIndex >= waypoints.Length)
+        {
+            _waypointIndex = 0;
+            _start = _end;
+            _end = null;
+            GameManager.Singleton.ChangeLives(-1);
+            EndOfLife();
+        }
+        else
+            NewDirection();
     }
 
-    new public void StartNewJourney()
+    public void StartNewJourney()
     {
         if (_start != null && _end != null)
         {
@@ -93,7 +145,7 @@ public class Rabbit : AStarAgent
             }
         }
     }
-    new protected void Repath()
+    private void Repath()
     {
         Debug.Log("Repath requested");
         if (PathImpacted())
@@ -102,7 +154,14 @@ public class Rabbit : AStarAgent
             _start = waypoints[_waypointIndex];
             StartNewJourney();
         }
-        base.Repath();
+        repathPending = false;
+    }
+
+
+    public void TerminatePath()
+    {
+        Debug.Log("Path terminated");
+        _end = null;
     }
 
     public void EndOfLife()

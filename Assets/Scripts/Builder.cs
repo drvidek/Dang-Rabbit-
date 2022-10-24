@@ -32,6 +32,7 @@ public class Builder : MonoBehaviour
                         Destroy(_currentFence.gameObject);
                         _currentFence = null;
                     }
+                    _builderIndex = -1;
                 }
             }
             if (_leftClickHeld && !Input.GetMouseButton(0))
@@ -109,11 +110,7 @@ public class Builder : MonoBehaviour
     {
         Farmer farmer = _builderOptions[farmerIndex].GetComponent<Farmer>();
         farmer.SetDestination(n);
-        if (farmer.state == FarmerState.move)
-            farmer.RepathPending = true;
-        else
-            farmer.StartNewJourney();
-        farmer.state = FarmerState.move;
+        _builderIndex = -1;
     }
 
     public void SetBuilderMode(int i)

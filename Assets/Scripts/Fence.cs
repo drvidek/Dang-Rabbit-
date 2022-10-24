@@ -53,7 +53,7 @@ public class Fence : MonoBehaviour
 
     private BuildDir GetFenceDirection()
     {
-        if (fencePiece.leftPost.transform.position.x != fencePiece.rightPost.transform.position.x)
+        if (fencePiece.leftPost.transform.position.x != fencePiece.rightPost.transform.position.x || fencePiece.leftPost.transform.position == fencePiece.rightPost.transform.position)
             return BuildDir.horizontal;
         else
             return BuildDir.vertical;
@@ -80,6 +80,8 @@ public class Fence : MonoBehaviour
 
         fencePiece.fence.transform.localPosition = offset;
         BlockNodes();
+        RabbitSpawn.RepathRabbits();
+        GameManager.Singleton.ChangeScore(-30 * Mathf.Abs((int)width));
         completeBuild = true;
     }
 
@@ -95,7 +97,6 @@ public class Fence : MonoBehaviour
             if (hit.TryGetComponent<Node>(out Node n))
             n.SetDisabled(true);
         }
-        RabbitSpawn.RepathRabbits();
     }
 
 }
