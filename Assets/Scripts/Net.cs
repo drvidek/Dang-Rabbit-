@@ -59,7 +59,8 @@ public class Net : MonoBehaviour
             if (rabbit == _target)
             {
                 SetTarget(null, _homePos);
-                GameManager.Singleton.ChangeScore(5);
+                GameManager.Singleton.ChangeMoney(GameManager.Singleton.RabbitWorth);
+                GameManager.Singleton.ChangePoints(1);
                 rabbit.EndOfLife();
             }
         }

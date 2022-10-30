@@ -24,6 +24,7 @@ public class Fence : MonoBehaviour
     [SerializeField] private BoxCollider _boxCollider;
     public bool building = true;
     bool completeBuild = false;
+    public int cost = 30;
 
     public bool ValidFence { get => ValidateFence(); }
 
@@ -40,6 +41,7 @@ public class Fence : MonoBehaviour
             _drawLine.SetPosition(0, fencePiece.leftPost.transform.position);
             _drawLine.SetPosition(1, fencePiece.rightPost.transform.position);
             _drawLine.startColor = _drawLine.endColor = ValidateFence() ? Color.green : Color.red;
+            _buildDir = GetFenceDirection();
         }
         else
             if (!completeBuild)
@@ -48,7 +50,15 @@ public class Fence : MonoBehaviour
 
     private bool ValidateFence()
     {
-        return (fencePiece.leftPost.transform.position.x == fencePiece.rightPost.transform.position.x || fencePiece.leftPost.transform.position.y == fencePiece.rightPost.transform.position.y);
+        return (fencePiece.leftPost.transform.position.x == fencePiece.rightPost.transform.position.x || fencePiece.leftPost.transform.position.y == fencePiece.rightPost.transform.position.y) && (GameManager.Singleton.CheckMoney(cost * (int)Mathf.Abs(GetFenceWidth())));
+    }
+
+    private float GetFenceWidth()
+    {
+        float width = _buildDir == BuildDir.horizontal ? fencePiece.leftPost.transform.position.x - fencePiece.rightPost.transform.position.x : fencePiece.leftPost.transform.position.y - fencePiece.rightPost.transform.position.y;
+        float sign = Mathf.Sign(width);
+        width += sign;
+        return width;
     }
 
     private BuildDir GetFenceDirection()
@@ -63,12 +73,8 @@ public class Fence : MonoBehaviour
     {
         _drawLine.enabled = false;
         fencePiece.fence.enabled = true;
-
-        _buildDir = GetFenceDirection();
-        float width = _buildDir == BuildDir.horizontal ? fencePiece.leftPost.transform.position.x - fencePiece.rightPost.transform.position.x : fencePiece.leftPost.transform.position.y - fencePiece.rightPost.transform.position.y;
+        float width = GetFenceWidth();
         float sign = Mathf.Sign(width);
-        width += sign;
-        Debug.Log(width);
         fencePiece.fence.drawMode = SpriteDrawMode.Tiled;
         fencePiece.fence.size = new Vector2(width, 1f);
         _boxCollider.size = new Vector3(Mathf.Abs(width)-0.5f, 0.5f,1f);
@@ -81,7 +87,7 @@ public class Fence : MonoBehaviour
         fencePiece.fence.transform.localPosition = offset;
         BlockNodes();
         RabbitSpawn.RepathRabbits();
-        GameManager.Singleton.ChangeScore(-30 * Mathf.Abs((int)width));
+        GameManager.Singleton.ChangeMoney(-cost * Mathf.Abs((int)width));
         completeBuild = true;
     }
 

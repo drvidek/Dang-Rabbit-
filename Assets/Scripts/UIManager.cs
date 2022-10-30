@@ -11,6 +11,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _scoreText;
     [SerializeField] private string _livesString = "10 Carrots";
     [SerializeField] private TextMeshProUGUI _livesText;
+    [SerializeField] private string _pointsString = "0 Rabbits captured";
+    [SerializeField] private TextMeshProUGUI _pointsText;
+    [SerializeField] private GameObject _endPanel;
 
     public void ChangeBuilderMode(int i)
     {
@@ -27,5 +30,16 @@ public class UIManager : MonoBehaviour
     {
         _livesString = $"{lives} Carrots";
         _livesText.text = _livesString;
+    }
+
+    public void UpdatePoints(int points)
+    {
+        _pointsString = $"{points} Rabbit{(points == 1 ? "" : "s")} captured";
+        _pointsText.text = _pointsString;
+    }
+
+    public void TriggerEndPanel()
+    {
+        _endPanel.SetActive(true);
     }
 }

@@ -26,6 +26,7 @@ public class Rabbit : MonoBehaviour
     public Node End { get => _end; }
     [SerializeField] private Animator animator;
     [SerializeField] private SpriteRenderer spriteRend;
+    private ParticleSystem _digPart;
 
     public void Initialise(Node start, Node end, RabbitSpawn spawn, Node[] nodes)
     {
@@ -35,6 +36,7 @@ public class Rabbit : MonoBehaviour
             animator = GetComponentInChildren<Animator>();
         if (spriteRend == null)
             spriteRend = GetComponentInChildren<SpriteRenderer>();
+        _digPart = GetComponentInChildren<ParticleSystem>();
         _start = start;
         _end = end;
         _rabbitSpawn = spawn;
@@ -142,6 +144,7 @@ public class Rabbit : MonoBehaviour
                 _rabbitSpawn.RabbitRequestRelocate(this);
                 _relocating = true;
                 spriteRend.enabled = false;
+                _digPart.Play();
             }
         }
     }

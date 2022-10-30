@@ -14,6 +14,9 @@ public class Builder : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!GameManager.Singleton.IsPlaying)
+            return;
+
         if (_builderIndex > -1)
         {
             if (!_leftClickHeld)

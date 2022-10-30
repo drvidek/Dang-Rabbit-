@@ -13,6 +13,10 @@ public class RabbitSpawn : MonoBehaviour
     private float _spawnTimer;
     private static List<Rabbit> _rabbits = new List<Rabbit>();
     [SerializeField] private GameObject _mound;
+    private float _spawnTimerMod = 1f;
+    private float _spawnTimerDecay = 1f;
+    private int _rabbitCount = 0;
+    private int _rabbitCountMax = 20;
 
     void Start()
     {
@@ -36,10 +40,23 @@ public class RabbitSpawn : MonoBehaviour
             Rabbit rabbit = Instantiate(_rabbitPrefab, _startNode.transform.position, Quaternion.identity, null).GetComponent<Rabbit>();
             rabbit.Initialise(_startNode, _endNode, this, _path);
             _rabbits.Add(rabbit);
-            _spawnTimer = _spawnTimerMax;
+            ManageSpawnDecay();
+            _spawnTimer = _spawnTimerMax * _spawnTimerMod;
+            _spawnTimerMod = Random.Range(0.6f, 1f) * _spawnTimerDecay;
         }
         else
             _spawnTimer -= Time.deltaTime;
+    }
+
+    private void ManageSpawnDecay()
+    {
+        _rabbitCount++;
+        if (_rabbitCount > _rabbitCountMax)
+        {
+            _spawnTimerDecay = Mathf.MoveTowards(_spawnTimerDecay, 0.5f, 0.05f);
+            _rabbitCountMax = Mathf.RoundToInt((float)_rabbitCountMax * 1.2f);
+            _rabbitCount = 0;
+        }
     }
 
     public void RemoveRabbit(Rabbit rabbit)

@@ -1,18 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-    public enum FarmerState { move, attack }
+using UnityEngine.UI;
+
+public enum FarmerState { move, attack }
 
 public class Farmer : MonoBehaviour
 {
     public FarmerState state;
-    [SerializeField] private float _moveSpd,_minDist = 0.02f;
+    [SerializeField] private float _moveSpd, _minDist = 0.02f;
     [SerializeField] private float _cooldown, _cooldownMax;
     [SerializeField] private List<Rabbit> _targetList = new List<Rabbit>();
     [SerializeField] private Net _net;
     private Node _rabbitEnd;
     private Transform _targetDest;
     [SerializeField] private Node _currentNode;
+    private Image _cooldownImage;
+    private Animator _anim;
 
     private void Start()
     {
@@ -23,12 +27,17 @@ public class Farmer : MonoBehaviour
     public void Initialise()
     {
         _rabbitEnd = GameObject.Find("End").GetComponent<Node>();
+        _cooldownImage = GetComponentInChildren<Image>();
         _currentNode.SetDisabled(false);
+        _anim = GetComponentInChildren<Animator>();
         NextState();
     }
 
     void NextState()
     {
+        if (!GameManager.Singleton.IsPlaying)
+            return; 
+        
         switch (state)
         {
             case FarmerState.move:
@@ -45,9 +54,13 @@ public class Farmer : MonoBehaviour
     // Update is called once per frame
     IEnumerator AttackState()
     {
-        _cooldown = _cooldownMax;
+        //_cooldown = _cooldownMax;
+
         while (state == FarmerState.attack)
         {
+            if (!GameManager.Singleton.IsPlaying)
+                break;
+
             if (_targetDest != null && _net.NetFree)
             {
                 state = FarmerState.move;
@@ -56,6 +69,14 @@ public class Farmer : MonoBehaviour
 
             if (_cooldown == 0)
             {
+                for (int i = 0; i < _targetList.Count; i++)
+                {
+                    if (_targetList[i] == null)
+                    {
+                        _targetList.RemoveAt(i);
+                        i--;
+                    }
+                }
                 if (_targetList.Count > 0)
                 {
                     Rabbit nearest = null;
@@ -77,10 +98,11 @@ public class Farmer : MonoBehaviour
                         _net.SetTarget(nearest, nearest.transform.position);
                         //Destroy(nearest.gameObject);
                         _cooldown = _cooldownMax;
+                        _anim.SetTrigger("Jump");
                     }
                 }
             }
-            _cooldown = Mathf.MoveTowards(_cooldown, 0, Time.deltaTime);
+            UpdateCooldown();
 
             yield return null;
         }
@@ -90,20 +112,28 @@ public class Farmer : MonoBehaviour
     IEnumerator MoveState()
     {
         _net.gameObject.SetActive(false);
+        _anim.SetBool("Walk", true);
         while (state == FarmerState.move)
         {
+            if (!GameManager.Singleton.IsPlaying)
+                break;
+
             if (_targetDest != null)
             {
                 Move();
-                _net.transform.localPosition = Vector3.zero;
             }
             else
                 state = FarmerState.attack;
+            
+            UpdateCooldown();
+
             yield return null;
         }
         RabbitSpawn.RepathRabbits();
+        _net.transform.localPosition = Vector3.up/2;
         _net.gameObject.SetActive(true);
         _net.Initialise();
+        _anim.SetBool("Walk", false);
         NextState();
     }
 
@@ -111,7 +141,7 @@ public class Farmer : MonoBehaviour
     private void Move()
     {
         if (Vector3.Distance(transform.position, _targetDest.position) > _minDist)
-        transform.position += MathExt.Direction(transform.position, _targetDest.position) * _moveSpd * Time.deltaTime;
+            transform.position += MathExt.Direction(transform.position, _targetDest.position) * _moveSpd * Time.deltaTime;
         else
         {
             transform.position = _targetDest.position;
@@ -142,5 +172,12 @@ public class Farmer : MonoBehaviour
             if (_targetList.Contains(rabbit))
                 _targetList.Remove(rabbit);
         }
+    }
+
+    private void UpdateCooldown()
+    {
+        _cooldown = Mathf.MoveTowards(_cooldown, 0, Time.deltaTime);
+
+        _cooldownImage.fillAmount = _cooldown / _cooldownMax;
     }
 }
