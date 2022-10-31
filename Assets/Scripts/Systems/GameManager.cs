@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    #region Variables
     private bool _isPlaying = true;
     public bool IsPlaying { get => _isPlaying; }
     [SerializeField] private int money = 300;
@@ -38,44 +39,51 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-    private UIManager _uiManager;
+    private UIManager _uiManager; 
+    #endregion
 
     private void Awake()
     {
         //when the object that this is attached to in game initialises, try to set the instance to this
         Singleton = this;
-        //Object.DontDestroyOnLoad(this.gameObject);
     }
 
     private void Start()
     {
+        //get the UI manager and update to defaults
         _uiManager ??= GetComponent<UIManager>();
-        _uiManager.UpdateScore(money);
+        _uiManager.UpdateMoney(money);
         _uiManager.UpdateLives(lives);
         _uiManager.UpdatePoints(points);
     }
 
     public void ChangeMoney(int change)
     {
+        //if the game is over, do nothing
         if (!_isPlaying)
             return;
 
+        //increase money by the change amount and update the UI
         money += change;
-        _uiManager.UpdateScore(money);
+        _uiManager.UpdateMoney(money);
     }
 
     public bool CheckMoney(int value)
     {
+        //check if you have enough money
         return (money - value >= 0);
     }    
 
     public void ChangeLives(int change)
     {
+        //if the game is over, do nothing
         if (!_isPlaying)
             return;
 
+        //increase lives by the change amount and update the UI
         lives += change;
         _uiManager.UpdateLives(lives);
+        //if out of lives, end the game
         if (lives == 0)
         {
             _uiManager.TriggerEndPanel();
@@ -85,15 +93,18 @@ public class GameManager : MonoBehaviour
 
     public void ChangePoints(int change)
     {
+        //if the game is over, do nothing
         if (!_isPlaying)
             return;
 
+        //increase points by the change amount and update the UI
         points += change;
         _uiManager.UpdatePoints(points);
     }
 
     public void RestartScene()
     {
+        //reset defaults and restart the scene
         money = 300;
         lives = 10;
         points = 0;

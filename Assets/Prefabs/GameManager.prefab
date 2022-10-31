@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8223151719314474728}
   - component: {fileID: 8223151719314474729}
   - component: {fileID: 2087892286}
+  - component: {fileID: 2087892289}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -59,7 +60,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3cfaf3ce2979cdc47a352d0cede246e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _stump: {fileID: 2993571419738059086, guid: 89c64619734b3b34abb18d5907020412, type: 3}
   _fence: {fileID: 4315627995048129551, guid: dd61c4f0515cf5844bf197ed805b0a99, type: 3}
   _currentFence: {fileID: 0}
   _leftClickHeld: 0
@@ -80,7 +80,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _builder: {fileID: 8223151719314474729}
-  score: $
-  _scoreText: {fileID: 0}
-  lives: 10 Carrots
+  _moneyString: $
+  _moneyText: {fileID: 0}
+  _livesString: 10 Carrots
   _livesText: {fileID: 0}
+  _pointsString: 0 Rabbits captured
+  _pointsText: {fileID: 0}
+  _endPanel: {fileID: 0}
+--- !u!114 &2087892289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8223151719314474725}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bfba4211b502ad4692afaebe863e428, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  money: 300
+  lives: 10
+  points: 0
